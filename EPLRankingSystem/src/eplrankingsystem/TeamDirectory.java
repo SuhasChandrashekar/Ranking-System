@@ -14,11 +14,16 @@ import java.util.List;
  */
 public class TeamDirectory {
     private List<Team> teamList;
+    private static final TeamDirectory teamDirectory = new TeamDirectory(); 
 
-    public TeamDirectory() {
+    private TeamDirectory() {
         teamList = new ArrayList();
     }
-
+    
+    public static TeamDirectory getInstance(){ 
+        return teamDirectory; 
+    } 
+    
     public List<Team> getTeamList() {
         return teamList;
     }
@@ -26,5 +31,12 @@ public class TeamDirectory {
     public void setTeamList(List<Team> teamList) {
         this.teamList = teamList;
     }
-
+    
+     public Team getTeam(String teamName){
+        for(Team team:teamList){
+            if(team.getTeamName().equals(teamName))
+                return team;
+        }
+        return null;
+    }
 }
