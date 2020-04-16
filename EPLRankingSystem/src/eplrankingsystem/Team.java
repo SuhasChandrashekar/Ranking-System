@@ -5,6 +5,7 @@
  */
 package eplrankingsystem;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,6 +18,11 @@ public class Team {
     private ProbabilityDensityFunction cumulativePdf;
     private double rankingIndex;
     
+    public Team(String teamName){
+        this.teamName = teamName;
+        pdf = new HashMap<>();
+        cumulativePdf = new ProbabilityDensityFunction();
+    }
 
     public String getTeamName() {
         return teamName;

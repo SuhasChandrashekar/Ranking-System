@@ -5,6 +5,7 @@
  */
 package eplrankingsystem;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -16,6 +17,11 @@ public class ProbabilityDensityFunction {
     private double sd;
     Map<Integer,Integer> occurence;
     Map<Integer,Double> probability;
+
+    public ProbabilityDensityFunction() {
+        occurence = new HashMap();
+        probability = new HashMap();
+    }
 
     public double getMean() {
         return mean;
