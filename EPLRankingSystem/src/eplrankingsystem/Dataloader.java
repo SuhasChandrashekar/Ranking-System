@@ -10,8 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  *
@@ -25,17 +23,17 @@ public class Dataloader {
         TeamDirectory teamDirectory = TeamDirectory.getInstance();
 
         try {
-            System.out.println("practice.Dataloader.getValues()"+url);
+            //System.out.println("practice.Dataloader.getValues()"+url);
             br = new BufferedReader(new InputStreamReader(url.openStream()));
-            int count=0;
+            //int count=0;
             line = br.readLine();
             while ((line = br.readLine()) != null) {
                 // use comma as separator
-                count++;
+                //count++;
                 String[] record = line.split(cvsSplitBy);
-                System.err.println("HomeTeam :"+record[2]+" , AwayTeam :" + record[3]+" , FTHG :" + record[4]+" , FTAG :" + record[5]);
-                String homeTeam = record[2];
-                String awayTeam = record[3];
+                //System.err.println("HomeTeam :"+record[2]+" , AwayTeam :" + record[3]+" , FTHG :" + record[4]+" , FTAG :" + record[5]);
+                String homeTeam = record[2].toLowerCase();
+                String awayTeam = record[3].toLowerCase();
                 int goalDifference = Integer.parseInt(record[4])-Integer.parseInt(record[5]);
                 Team team = teamDirectory.getTeam(homeTeam);
                 if(team ==null){
@@ -52,7 +50,7 @@ public class Dataloader {
                 else{
                     pdf = new ProbabilityDensityFunction();
                     pdf.getOccurence().put(goalDifference, 1);
-                    team.getPdfs().put(record[3], pdf);
+                    team.getPdfs().put(awayTeam, pdf);
                 }
             }
             //System.out.println("count"+count);
@@ -66,5 +64,6 @@ public class Dataloader {
                 }
             }
         }
-    }   
+    }
+    
 }
