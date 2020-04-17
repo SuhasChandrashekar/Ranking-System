@@ -70,6 +70,7 @@ public class EPLRankingSystem {
         teamDirectory.calculateTeamStats();
         Team team1 = teamDirectory.getTeam(homeTeam.toLowerCase());
         //if homeTeam is playing its first match ever in epl
+        System.out.println("eplrankingsystem.EPLRankingSystem.findWinner()"+team1);
         if(team1 == null){
             return 0;
         }
@@ -187,7 +188,7 @@ public class EPLRankingSystem {
     }
     
     //read data from cvs files and load data into objects 
-    private static void loadData(){
+    public static void loadData(){
         List<String> l = new ArrayList<>();
          l.add("2000-2001.csv");
          l.add("2001-2002.csv");
