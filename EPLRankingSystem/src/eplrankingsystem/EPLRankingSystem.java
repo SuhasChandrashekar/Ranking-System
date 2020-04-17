@@ -41,6 +41,7 @@ public class EPLRankingSystem {
          l.add("2017-2018.csv");
          l.add("2018-2019.csv");
          l.add("2019-2020.csv");
+         //l.add("sample.csv");
          Dataloader dataloader =new Dataloader();
          for(int i=0;i<l.size();i++){
              String filePath="files/"+l.get(i);
