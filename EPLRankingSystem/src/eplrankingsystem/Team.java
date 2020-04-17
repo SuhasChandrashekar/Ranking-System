@@ -5,6 +5,7 @@
  */
 package eplrankingsystem;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -13,10 +14,15 @@ import java.util.Map;
  */
 public class Team {
     private String teamName;
-    private Map<String, ProbabilityDensityFunction> pdf;
+    private Map<String, ProbabilityDensityFunction> pdfs;
     private ProbabilityDensityFunction cumulativePdf;
     private double rankingIndex;
     
+    public Team(String teamName){
+        this.teamName = teamName;
+        pdfs = new HashMap<>();
+        cumulativePdf = new ProbabilityDensityFunction();
+    }
 
     public String getTeamName() {
         return teamName;
@@ -26,12 +32,12 @@ public class Team {
         this.teamName = teamName;
     }
 
-    public Map<String, ProbabilityDensityFunction> getPdf() {
-        return pdf;
+    public Map<String, ProbabilityDensityFunction> getPdfs() {
+        return pdfs;
     }
 
-    public void setPdf(Map<String, ProbabilityDensityFunction> pdf) {
-        this.pdf = pdf;
+    public void setPdfs(Map<String, ProbabilityDensityFunction> pdfs) {
+        this.pdfs = pdfs;
     }
 
     public double getRankingIndex() {
@@ -50,4 +56,10 @@ public class Team {
         this.cumulativePdf = cumulativeDistributionFunction;
     }
     
+    public void calculateTeamStats(){
+        for(Map.Entry map:pdfs.entrySet()){
+            ProbabilityDensityFunction pdf = (ProbabilityDensityFunction)map.getValue();
+            pdf.calculateTeamStats();
+        }
+    }
 }

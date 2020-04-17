@@ -10,8 +10,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
@@ -22,18 +22,40 @@ public class Dataloader {
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ",";
+        TeamDirectory teamDirectory = TeamDirectory.getInstance();
 
         try {
             System.out.println("practice.Dataloader.getValues()"+url);
             br = new BufferedReader(new InputStreamReader(url.openStream()));
             int count=0;
+            line = br.readLine();
             while ((line = br.readLine()) != null) {
                 // use comma as separator
                 count++;
-                String[] country = line.split(cvsSplitBy);
-                    System.err.println("HomeTeam :"+country[2]+" , AwayTeam :" + country[3]+" , FTHG :" + country[4]+" , FTAG :" + country[5]);
+                String[] record = line.split(cvsSplitBy);
+                System.err.println("HomeTeam :"+record[2]+" , AwayTeam :" + record[3]+" , FTHG :" + record[4]+" , FTAG :" + record[5]);
+                String homeTeam = record[2];
+                String awayTeam = record[3];
+                int goalDifference = Integer.parseInt(record[4])-Integer.parseInt(record[5]);
+                Team team = teamDirectory.getTeam(homeTeam);
+                if(team ==null){
+                    team = new Team(homeTeam);
+                    teamDirectory.getTeamList().add(team);
+                }                   
+                ProbabilityDensityFunction pdf = team.getPdfs().get(awayTeam);
+                if(pdf!=null){
+                    if(pdf.getOccurence().get(goalDifference) == null)
+                        pdf.getOccurence().put(goalDifference, 1);
+                    else
+                        pdf.getOccurence().put(goalDifference,pdf.getOccurence().get(goalDifference)+1);
+                }
+                else{
+                    pdf = new ProbabilityDensityFunction();
+                    pdf.getOccurence().put(goalDifference, 1);
+                    team.getPdfs().put(record[3], pdf);
+                }
             }
-            System.out.println("count"+count);
+            //System.out.println("count"+count);
         } catch (FileNotFoundException e) {
         } catch (IOException e) {
         } finally {
