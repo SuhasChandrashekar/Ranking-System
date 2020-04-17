@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public class Team {
     private String teamName;
+    //pdfs with key being the away team value being pdfs calculated
     private Map<String, ProbabilityDensityFunction> pdfs;
     
     public Team(String teamName){
@@ -36,7 +37,7 @@ public class Team {
     public void setPdfs(Map<String, ProbabilityDensityFunction> pdfs) {
         this.pdfs = pdfs;
     }
-    
+    //Calculate Mean and SD for all the awayteams
     public void calculateTeamStats(){
         for(Map.Entry map:pdfs.entrySet()){
             ProbabilityDensityFunction pdf = (ProbabilityDensityFunction)map.getValue();

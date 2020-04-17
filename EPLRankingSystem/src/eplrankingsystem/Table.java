@@ -23,11 +23,13 @@ public class Table {
     public static Table getInstance(){ 
         return table; 
     } 
-
+    
+    //prints the predicted ranking table
     public void printTable() {
+        int count = 1;
         for(TableEntry tableEntry:tableEntries){
-            //System.out.println(tableEntry.getTeam()+"\t\t"+tableEntry.getPoints());
-            System.out.printf("%-25s %-5d\n",tableEntry.getTeam(),tableEntry.getPoints());
+            System.out.printf("%-5d%-25s %-5d\n",count,tableEntry.getTeam(),tableEntry.getPoints());
+            count++;
         }
     }
     
@@ -45,5 +47,30 @@ public class Table {
                 return tableEntry;
         }
         return null;
+    }
+    
+    //given hometeam awayteam and goaldifference in the match, update the table
+    public void updateTable(String homeTeam, String awayTeam, int goalDifference){
+        TableEntry homeTableEntry = table.getTeam(homeTeam);
+        TableEntry awayTableEntry = table.getTeam(awayTeam);
+        if(homeTableEntry ==null){
+            homeTableEntry = new TableEntry(homeTeam,0);
+            table.getTableEntries().add(homeTableEntry);
+        }
+        if(awayTableEntry ==null){
+            awayTableEntry = new TableEntry(awayTeam,0);
+            table.getTableEntries().add(awayTableEntry);
+        }
+        //home team wins
+        if(goalDifference>0)
+            homeTableEntry.setPoints(homeTableEntry.getPoints()+3);
+        //away team wins
+        else if(goalDifference<0)
+            awayTableEntry.setPoints(awayTableEntry.getPoints()+3);
+        //draw
+        else{
+            homeTableEntry.setPoints(homeTableEntry.getPoints()+1);
+            awayTableEntry.setPoints(awayTableEntry.getPoints()+1);
+        }
     }
 }
