@@ -55,6 +55,7 @@ public class ProbabilityDensityFunction {
         this.probability = probility;
     }
     
+    //get values from occurence map and calculate the probability for each goal difference 
     public void calculateProbability(){
         int totalMatches = occurence.values().stream().reduce(0, Integer::sum);
         for(Map.Entry map:occurence.entrySet()){
@@ -65,6 +66,7 @@ public class ProbabilityDensityFunction {
         }
     }
     
+    //calculate mean for the pdf
     public void calculateMean(){
         int totalMatches = occurence.values().stream().reduce(0, Integer::sum);
         double totalGoals =0;
@@ -76,6 +78,7 @@ public class ProbabilityDensityFunction {
         this.mean = totalGoals/totalMatches;
     }
     
+    //calculate sd for the pdf
     public void caclulateSD(){
         int totalMatches = occurence.values().stream().reduce(0, Integer::sum);
         double difference=0;

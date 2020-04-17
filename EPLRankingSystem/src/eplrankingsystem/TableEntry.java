@@ -33,9 +33,10 @@ public class TableEntry implements Comparable<TableEntry>{
     public void setPoints(int points) {
         this.points = points;
     }
-
+    //to sort teams in the table according to their points
     @Override
     public int compareTo(TableEntry t) {
         return t.points - this.points;
     }
+    
 }
