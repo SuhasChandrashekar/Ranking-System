@@ -55,4 +55,42 @@ public class ProbabilityDensityFunction {
         this.probability = probility;
     }
     
+    public void calculateProbability(){
+        int totalMatches = occurence.values().stream().reduce(0, Integer::sum);
+        for(Map.Entry map:occurence.entrySet()){
+            int goalDifference = (int) map.getKey();
+            int noOfMatches = (int) map.getValue();
+            double prob = (double) noOfMatches/totalMatches;
+            probability.put(goalDifference, prob);
+        }
+    }
+    
+    public void calculateMean(){
+        int totalMatches = occurence.values().stream().reduce(0, Integer::sum);
+        double totalGoals =0;
+        for(Map.Entry map:occurence.entrySet()){
+            int goalDifference = (int) map.getKey();
+            int noOfMatches = (int) map.getValue();
+            totalGoals+= goalDifference*noOfMatches;
+        }
+        this.mean = totalGoals/totalMatches;
+    }
+    
+    public void caclulateSD(){
+        int totalMatches = occurence.values().stream().reduce(0, Integer::sum);
+        double difference=0;
+        for(Map.Entry map:occurence.entrySet()){
+            int goalDifference = (int) map.getKey();
+            int noOfMatches = (int) map.getValue();
+            difference+=Math.pow(goalDifference-mean,2)*noOfMatches;
+        }
+        double variance = difference/(totalMatches-1);
+        this.sd = Math.sqrt(variance);
+    }
+    
+    public void calculateTeamStats(){
+        calculateProbability();
+        calculateMean();
+        caclulateSD();
+    }
 }

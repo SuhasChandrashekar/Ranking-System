@@ -14,13 +14,13 @@ import java.util.Map;
  */
 public class Team {
     private String teamName;
-    private Map<String, ProbabilityDensityFunction> pdf;
+    private Map<String, ProbabilityDensityFunction> pdfs;
     private ProbabilityDensityFunction cumulativePdf;
     private double rankingIndex;
     
     public Team(String teamName){
         this.teamName = teamName;
-        pdf = new HashMap<>();
+        pdfs = new HashMap<>();
         cumulativePdf = new ProbabilityDensityFunction();
     }
 
@@ -32,12 +32,12 @@ public class Team {
         this.teamName = teamName;
     }
 
-    public Map<String, ProbabilityDensityFunction> getPdf() {
-        return pdf;
+    public Map<String, ProbabilityDensityFunction> getPdfs() {
+        return pdfs;
     }
 
-    public void setPdf(Map<String, ProbabilityDensityFunction> pdf) {
-        this.pdf = pdf;
+    public void setPdfs(Map<String, ProbabilityDensityFunction> pdfs) {
+        this.pdfs = pdfs;
     }
 
     public double getRankingIndex() {
@@ -56,4 +56,10 @@ public class Team {
         this.cumulativePdf = cumulativeDistributionFunction;
     }
     
+    public void calculateTeamStats(){
+        for(Map.Entry map:pdfs.entrySet()){
+            ProbabilityDensityFunction pdf = (ProbabilityDensityFunction)map.getValue();
+            pdf.calculateTeamStats();
+        }
+    }
 }

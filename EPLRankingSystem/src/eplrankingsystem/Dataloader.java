@@ -42,7 +42,7 @@ public class Dataloader {
                     team = new Team(homeTeam);
                     teamDirectory.getTeamList().add(team);
                 }                   
-                ProbabilityDensityFunction pdf = team.getPdf().get(awayTeam);
+                ProbabilityDensityFunction pdf = team.getPdfs().get(awayTeam);
                 if(pdf!=null){
                     if(pdf.getOccurence().get(goalDifference) == null)
                         pdf.getOccurence().put(goalDifference, 1);
@@ -52,7 +52,7 @@ public class Dataloader {
                 else{
                     pdf = new ProbabilityDensityFunction();
                     pdf.getOccurence().put(goalDifference, 1);
-                    team.getPdf().put(record[3], pdf);
+                    team.getPdfs().put(record[3], pdf);
                 }
             }
             //System.out.println("count"+count);

@@ -32,11 +32,17 @@ public class TeamDirectory {
         this.teamList = teamList;
     }
     
-     public Team getTeam(String teamName){
+    public Team getTeam(String teamName){
         for(Team team:teamList){
             if(team.getTeamName().equals(teamName))
                 return team;
         }
         return null;
+    }
+    
+    public void calculateTeamStats(){
+        for(Team team:teamList){
+            team.calculateTeamStats();
+        }
     }
 }
