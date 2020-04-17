@@ -27,6 +27,167 @@ public class EPLRankingSystem {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        //read data from cvs files and load data into objects
+        loadData();
+        Scanner sc= new Scanner(System.in);
+        int option = 0;
+        while(option!=3){
+            String homeTeam,awayTeam;
+            System.out.println("Select one of the choices");
+            System.out.println("1.Predict result between two teams");
+            System.out.println("2.Predict EPL Standings for 2019-2021");
+            System.out.println("3.Exit");
+            option = sc.nextInt();
+        
+            switch(option){
+                case 1: System.out.println("Enter two teams (1st team entered will be considered as the home team)");
+                           sc.nextLine();
+                           homeTeam=sc.nextLine();
+                           awayTeam=sc.nextLine();
+                           int value = findWinner(homeTeam,awayTeam,true);
+                            switch (value) {
+                                case 0:
+                                    System.out.println("Match will be draw");
+                                    break;
+                                case 1:
+                                    System.out.println(homeTeam+" will win the match");
+                                    break;
+                                default:
+                                    System.out.println(awayTeam+" will win the match");
+                                    break;
+                            }
+                           break;
+                case 2: predictCurrentSeasonRankings();
+                            break;
+                case 3 : break;
+                default: System.out.println("Enter valid choice");;
+             }
+        }
+    }
+    
+    public static int findWinner(String homeTeam,String awayTeam,boolean printProbability){
+        TeamDirectory teamDirectory = TeamDirectory.getInstance();
+        teamDirectory.calculateTeamStats();
+        Team team1 = teamDirectory.getTeam(homeTeam.toLowerCase());
+        //if homeTeam is playing its first match ever in epl
+        if(team1 == null){
+            return 0;
+        }
+        ProbabilityDensityFunction pdf = team1.getPdfs().get(awayTeam.toLowerCase());
+        //if the teams havent played against each other ever in epl
+        if(pdf==null){
+            return 0;
+        }
+        double mean = pdf.getMean();
+        double sd = pdf.getSd();
+        //NormalDistribution functions fail if SD is 0, so intializing it with small value
+        if(sd==0)
+            sd=0.001;
+        NormalDistribution d = new NormalDistribution(mean, sd);
+        double winningProbability = d.probability(0.5, 99);
+        double drawProbability = d.probability(-0.5, 0.5);
+        double losingProbabaility = d.probability(-99, -0.5);
+        //return 1 if home team winning probabality is more
+        if(winningProbability>drawProbability && winningProbability>losingProbabaility){
+            if(printProbability)
+                System.out.println("Winning Probability "+winningProbability);
+            return 1;
+        }
+        //return 0 if draw probabality is more
+        else if(drawProbability>losingProbabaility){
+            if(printProbability)
+                System.out.println("Draw Probability "+drawProbability);
+            return 0;
+        }
+        //return -1 if home team winning probabality is more
+        else{
+            if(printProbability)
+                System.out.println("Losing Probability "+losingProbabaility);
+            return -1;
+        }
+    }
+    
+    public static void predictCurrentSeasonRankings(){
+        //read results from the curent season and update table
+        String s ="2019-2020.csv";
+        String filePath="files/"+s;
+        URL f=Thread.currentThread().getContextClassLoader().getResource(filePath);
+        createTableForPlayedMatches(f);
+        //get remaining fixtures from csv file
+        s ="RemainingFixtures.csv";
+        filePath="files/"+s;
+        f=Thread.currentThread().getContextClassLoader().getResource(filePath);
+        predictRemainingMatches(f);
+    }
+    
+    //read results from the curent season and update table
+    public static void createTableForPlayedMatches(URL url){
+        BufferedReader br = null;
+        String line = "";
+        String cvsSplitBy = ",";
+        Table table = Table.getInstance();
+
+        try {
+            br = new BufferedReader(new InputStreamReader(url.openStream()));
+            line = br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] record = line.split(cvsSplitBy);
+                String homeTeam = record[2].toUpperCase();
+                String awayTeam = record[3].toUpperCase();
+                int goalDifference = Integer.parseInt(record[4])-Integer.parseInt(record[5]);
+                table.updateTable(homeTeam, awayTeam, goalDifference);
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println(e);
+        } catch (IOException e) {
+            System.out.println(e);
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    System.out.println(e);
+                }
+            }
+        }
+    }
+    
+    //fetch reamaining matches from csv files and predict the winner for each match and update table
+    public static void predictRemainingMatches(URL url){
+        BufferedReader br = null;
+        String line = "";
+        String cvsSplitBy = ",";
+        Table table = Table.getInstance();
+
+        try {
+            br = new BufferedReader(new InputStreamReader(url.openStream()));
+            while ((line = br.readLine()) != null) {
+                String[] record = line.split(cvsSplitBy);
+                String homeTeam = record[0].toUpperCase();
+                String awayTeam = record[1].toUpperCase();
+                int goalDifference = findWinner(homeTeam,awayTeam,false);
+                table.updateTable(homeTeam, awayTeam, goalDifference);
+            }
+            //sort table based on points scored by the teams
+            Collections.sort(table.getTableEntries());
+            table.printTable();
+        } catch (FileNotFoundException e) {
+            System.out.println(e);
+        } catch (IOException e) {
+            System.out.println(e);
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    System.out.println(e);
+                }
+            }
+        }
+    }
+    
+    //read data from cvs files and load data into objects 
+    private static void loadData(){
         List<String> l = new ArrayList<>();
          l.add("2000-2001.csv");
          l.add("2001-2002.csv");
@@ -48,155 +209,11 @@ public class EPLRankingSystem {
          l.add("2017-2018.csv");
          l.add("2018-2019.csv");
          l.add("2019-2020.csv");
-         //l.add("sample2.csv");
          Dataloader dataloader =new Dataloader();
          for(int i=0;i<l.size();i++){
              String filePath="files/"+l.get(i);
              URL f=Thread.currentThread().getContextClassLoader().getResource(filePath);
             dataloader.getValues(f);
          }
-         Scanner sc= new Scanner(System.in);
-         int option = 0;
-        String homeTeam,awayTeam;
-        System.out.println("Select one of the choices");
-        System.out.println("1.Predict result between two teams");
-        System.out.println("2.Predict EPL Standings for 2019-2021");
-        System.out.println("3.Exit");
-        option = sc.nextInt();
-        switch(option){
-            case 1: System.out.println("Enter two teams (1st team entered will be considered as the home team)");
-                       sc.nextLine();
-                       homeTeam=sc.nextLine();
-                       awayTeam=sc.nextLine();
-                       int value = findWinner(homeTeam,awayTeam);
-                       if(value==0)
-                            System.out.println("Match will be draw");
-                       else if(value>1)
-                            System.out.println(homeTeam+" will win the match");
-                       else
-                           System.out.println(awayTeam+" will win the match");
-                       break;
-            case 2: predictCurrentSeasonRankings();
-         }
-    }
-    
-    public static int findWinner(String homeTeam,String awayTeam){
-        TeamDirectory teamDirectory = TeamDirectory.getInstance();
-        teamDirectory.calculateTeamStats();
-        Team team1 = teamDirectory.getTeam(homeTeam.toLowerCase());
-        if(team1 == null){
-            return 0;
-        }
-        ProbabilityDensityFunction pdf = team1.getPdfs().get(awayTeam.toLowerCase());
-        if(pdf==null){
-            return 0;
-        }
-        double mean = pdf.getMean();
-        double sd = pdf.getSd();
-        if(sd==0)
-            sd=0.001;
-        NormalDistribution d = new NormalDistribution(mean, sd);
-        double winningProbability = d.probability(0.5, 99);
-        //System.out.println(winningProbability);
-        double drawProbability = d.probability(-0.5, 0.5);
-        //System.out.println(drawProbability);
-        double losingProbabaility = d.probability(-99, -0.5);
-        //System.out.println(losingProbabaility);
-        if(winningProbability>drawProbability && winningProbability>losingProbabaility)
-            return 1;
-        else if(drawProbability>losingProbabaility)
-            return 0;
-        else
-            return -1;
-    }
-    
-    public static void predictCurrentSeasonRankings(){
-        String s ="2019-2020.csv";
-        String filePath="files/"+s;
-        URL f=Thread.currentThread().getContextClassLoader().getResource(filePath);
-        createTableForPlayedMatches(f);
-        s ="RemainingFixtures.csv";
-        filePath="files/"+s;
-        f=Thread.currentThread().getContextClassLoader().getResource(filePath);
-        predictRemainingMatches(f);
-    }
-    
-    public static void createTableForPlayedMatches(URL url){
-        BufferedReader br = null;
-        String line = "";
-        String cvsSplitBy = ",";
-        Table table = Table.getInstance();
-
-        try {
-            br = new BufferedReader(new InputStreamReader(url.openStream()));
-            line = br.readLine();
-            while ((line = br.readLine()) != null) {
-                String[] record = line.split(cvsSplitBy);
-                String homeTeam = record[2].toUpperCase();
-                String awayTeam = record[3].toUpperCase();
-                int goalDifference = Integer.parseInt(record[4])-Integer.parseInt(record[5]);
-                updateTable(homeTeam, awayTeam, goalDifference);
-            }
-        } catch (FileNotFoundException e) {
-        } catch (IOException e) {
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                }
-            }
-        }
-    }
-    
-    public static void predictRemainingMatches(URL url){
-        BufferedReader br = null;
-        String line = "";
-        String cvsSplitBy = ",";
-        Table table = Table.getInstance();
-
-        try {
-            br = new BufferedReader(new InputStreamReader(url.openStream()));
-            while ((line = br.readLine()) != null) {
-                String[] record = line.split(cvsSplitBy);
-                String homeTeam = record[0].toUpperCase();
-                String awayTeam = record[1].toUpperCase();
-                int goalDifference = findWinner(homeTeam,awayTeam);
-                updateTable(homeTeam, awayTeam, goalDifference);
-            }
-            Collections.sort(table.getTableEntries());
-            table.printTable();
-        } catch (FileNotFoundException e) {
-        } catch (IOException e) {
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                }
-            }
-        }
-    }
-    
-    public static void updateTable(String homeTeam, String awayTeam, int goalDifference){
-        Table table = Table.getInstance();
-        TableEntry homeTableEntry = table.getTeam(homeTeam);
-        TableEntry awayTableEntry = table.getTeam(awayTeam);
-        if(homeTableEntry ==null){
-            homeTableEntry = new TableEntry(homeTeam,0);
-            table.getTableEntries().add(homeTableEntry);
-        }
-        if(awayTableEntry ==null){
-            awayTableEntry = new TableEntry(awayTeam,0);
-            table.getTableEntries().add(awayTableEntry);
-        } 
-        if(goalDifference>0)
-            homeTableEntry.setPoints(homeTableEntry.getPoints()+3);
-        else if(goalDifference<0)
-            awayTableEntry.setPoints(awayTableEntry.getPoints()+3);
-        else{
-            homeTableEntry.setPoints(homeTableEntry.getPoints()+1);
-            awayTableEntry.setPoints(awayTableEntry.getPoints()+1);
-        }
     }
 }

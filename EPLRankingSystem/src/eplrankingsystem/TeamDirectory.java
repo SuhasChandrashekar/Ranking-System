@@ -15,7 +15,8 @@ import java.util.List;
 public class TeamDirectory {
     private List<Team> teamList;
     private static final TeamDirectory teamDirectory = new TeamDirectory(); 
-
+    
+    //singleton pattern to create only one object of TeamDirectory and it contains all the teams
     private TeamDirectory() {
         teamList = new ArrayList();
     }
@@ -40,6 +41,7 @@ public class TeamDirectory {
         return null;
     }
     
+    //Calculate Mean and SD for all combinations of teams from the data
     public void calculateTeamStats(){
         for(Team team:teamList){
             team.calculateTeamStats();
