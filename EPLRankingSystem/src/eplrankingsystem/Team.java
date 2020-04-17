@@ -15,13 +15,10 @@ import java.util.Map;
 public class Team {
     private String teamName;
     private Map<String, ProbabilityDensityFunction> pdfs;
-    private ProbabilityDensityFunction cumulativePdf;
-    private double rankingIndex;
     
     public Team(String teamName){
         this.teamName = teamName;
         pdfs = new HashMap<>();
-        cumulativePdf = new ProbabilityDensityFunction();
     }
 
     public String getTeamName() {
@@ -38,22 +35,6 @@ public class Team {
 
     public void setPdfs(Map<String, ProbabilityDensityFunction> pdfs) {
         this.pdfs = pdfs;
-    }
-
-    public double getRankingIndex() {
-        return rankingIndex;
-    }
-
-    public void setRankingIndex(double rankingIndex) {
-        this.rankingIndex = rankingIndex;
-    }
-
-    public ProbabilityDensityFunction getCumulativeDistributionFunction() {
-        return cumulativePdf;
-    }
-
-    public void setCumulativeDistributionFunction(ProbabilityDensityFunction cumulativeDistributionFunction) {
-        this.cumulativePdf = cumulativeDistributionFunction;
     }
     
     public void calculateTeamStats(){

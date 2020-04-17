@@ -34,7 +34,7 @@ public class TeamDirectory {
     
     public Team getTeam(String teamName){
         for(Team team:teamList){
-            if(team.getTeamName().equals(teamName))
+            if(team.getTeamName().equalsIgnoreCase(teamName))
                 return team;
         }
         return null;
