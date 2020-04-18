@@ -16,6 +16,8 @@ public class Team {
     private String teamName;
     //pdfs with key being the away team value being pdfs calculated
     private Map<String, ProbabilityDensityFunction> pdfs;
+    private double avgMean;
+    private double avgSd;
     
     public Team(String teamName){
         this.teamName = teamName;
@@ -43,5 +45,33 @@ public class Team {
             ProbabilityDensityFunction pdf = (ProbabilityDensityFunction)map.getValue();
             pdf.calculateTeamStats();
         }
+        calculateAvgMean();
+    }
+
+    public double getAvgMean() {
+        return avgMean;
+    }
+
+    public void setAvgMean(double avgmean) {
+        this.avgMean = avgmean;
+    }
+
+    public double getAvgSd() {
+        return avgSd;
+    }
+
+    public void setAvgSd(double avgSd) {
+        this.avgSd = avgSd;
+    }
+    
+    public void calculateAvgMean(){
+        int count=0;
+        double avgMeanPdf =0;
+        for(Map.Entry map:pdfs.entrySet()){
+            count++;
+            ProbabilityDensityFunction pdf = (ProbabilityDensityFunction)map.getValue();
+            avgMeanPdf+=pdf.getMean();
+        }
+        this.avgMean=avgMeanPdf/count;
     }
 }

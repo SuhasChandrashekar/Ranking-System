@@ -35,7 +35,7 @@ public class EPLRankingSystem {
             String homeTeam,awayTeam;
             System.out.println("Select one of the choices");
             System.out.println("1.Predict result between two teams");
-            System.out.println("2.Predict EPL Standings for 2019-2021");
+            System.out.println("2.Predict EPL Standings for 2019-2020");
             System.out.println("3.Exit");
             option = sc.nextInt();
         
@@ -65,19 +65,43 @@ public class EPLRankingSystem {
         }
     }
     
+    //retuns 1 if home team wins, -1 if away team wins, 0 if draw
     public static int findWinner(String homeTeam,String awayTeam,boolean printProbability){
         TeamDirectory teamDirectory = TeamDirectory.getInstance();
         teamDirectory.calculateTeamStats();
         Team team1 = teamDirectory.getTeam(homeTeam.toLowerCase());
-        //if homeTeam is playing its first match ever in epl
-        System.out.println("eplrankingsystem.EPLRankingSystem.findWinner()"+team1);
-        if(team1 == null){
+        Team team2 = teamDirectory.getTeam(awayTeam.toLowerCase());
+        //if both teams never plaved in epl before
+        if(team1 == null && team2 ==null){
             return 0;
         }
+        //if team1 is new team, predict the result based on team2's avrg mean against all oppenents
+        if(team1==null){
+            if(team2.getAvgMean()>=1)
+                return -1;
+            else if(team2.getAvgMean()<=-1)
+                return 1;
+            else
+                return 0;
+        }
+        //if team2 is new team, predict the result based on team1's avrg mean against all oppenents
+        if(team2==null){
+            if(team1.getAvgMean()>=1)
+                return 1;
+            else if(team1.getAvgMean()<=-1)
+                return -1;
+            else
+                return 0;
+        }
         ProbabilityDensityFunction pdf = team1.getPdfs().get(awayTeam.toLowerCase());
-        //if the teams havent played against each other ever in epl
+        //if the teams havent played against each other ever in epl but have played against other teams
         if(pdf==null){
-            return 0;
+            if((team1.getAvgMean()-team2.getAvgMean())>1)
+                return 1;
+            else if ((team2.getAvgMean()-team1.getAvgMean())>1)
+                return -1;
+            else 
+                return 0;
         }
         double mean = pdf.getMean();
         double sd = pdf.getSd();
@@ -85,9 +109,9 @@ public class EPLRankingSystem {
         if(sd==0)
             sd=0.001;
         NormalDistribution d = new NormalDistribution(mean, sd);
-        double winningProbability = d.probability(0.5, 99);
-        double drawProbability = d.probability(-0.5, 0.5);
-        double losingProbabaility = d.probability(-99, -0.5);
+        double winningProbability = d.probability(1, 99); //Area under curve between 1 to 99
+        double drawProbability = d.probability(-1, 1); //Area under curve between -1 to 1
+        double losingProbabaility = d.probability(-99, -1); //Area under curve between -99 to -1
         //return 1 if home team winning probabality is more
         if(winningProbability>drawProbability && winningProbability>losingProbabaility){
             if(printProbability)
